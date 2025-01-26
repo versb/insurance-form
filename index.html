@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insurance Comparison Form</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+    <script>
+    window.addEventListener('load', function(){
+        const supabaseUrl='https://bohetgcagjaqejdtncjr.supabase.co';
+        const supabaseKey='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvaGV0Z2NhZ2phcWVqZHRuY2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc1OTQ0MDgsImV4cCI6MjA1MzE3MDQwOH0.ssU_dom5kBRq0MdLl3OiMoyPhZHcGHnIi6lJKjacD6Q';
+        if(window.supabase){
+            window.supabase=supabase.createClient(supabaseUrl,supabaseKey);
+            console.log('Supabase initialized:',window.supabase);
+        }else{
+            console.error('Supabase library is not loaded.');
+        }
+    });
+    </script>
+    <style>
+      /* All styles are now scoped within #icf-wrapper to override Webflow styles */
+      #icf-wrapper *, #icf-wrapper *::before, #icf-wrapper *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      #icf-wrapper body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f7; color: #333; line-height: 1.6; padding: 20px; }
+      #icf-wrapper .icf-container, 
+      #icf-wrapper .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+      #icf-wrapper h2, #icf-wrapper h3 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+      
+      /* Progress Bar */
+      #icf-wrapper .icf-progress-container, 
+      #icf-wrapper .progress-container { width: 100%; background: #e0e0e0; border-radius: 12px; height: 30px; position: relative; overflow: hidden; margin-bottom: 30px; }
+      #icf-wrapper .icf-progress-bar, 
+      #icf-wrapper .progress-bar { height: 100%; width: 0%; background: #2980b9; transition: width 0.4s ease; position: relative; }
+      #icf-wrapper .icf-progress-bar::after, 
+      #icf-wrapper .progress-bar::after { content: attr(data-percentage); position: absolute; width: 100%; text-align: center; top: 50%; left: 0; transform: translateY(-50%); color: #fff; font-weight: bold; font-size: 14px; }
+      
+      /* Insurance Policies */
+      #icf-wrapper .icf-insurance-policies, 
+      #icf-wrapper .insurance-policies { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }
+      #icf-wrapper .icf-policy, 
+      #icf-wrapper .insurance-policies .policy { width: 120px; height: 120px; border: 2px solid #bdc3c7; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.3s, box-shadow 0.3s; background: #f9f9f9; }
+      #icf-wrapper .icf-policy.selected, 
+      #icf-wrapper .insurance-policies .policy.selected { border-color: #2980b9; box-shadow: 0 0 10px rgba(41,128,185,0.5); }
+      #icf-wrapper .icf-policy img, 
+      #icf-wrapper .insurance-policies .policy img { max-width: 80%; max-height: 80%; }
+      #icf-wrapper .icf-policy span, 
+      #icf-wrapper .insurance-policies .policy span { display: block; margin-top: 10px; color: #2c3e50; font-weight: bold; font-size: 14px; }
+      
+      /* Navigation Buttons */
+      #icf-wrapper .icf-navigation, 
+      #icf-wrapper .navigation-buttons { display: flex; justify-content: space-between; margin-top: 30px; }
+      #icf-wrapper .icf-navigation button, 
+      #icf-wrapper .navigation-buttons button { padding: 12px 24px; border: none; background: #2980b9; color: #fff; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background 0.3s; }
+      #icf-wrapper .icf-navigation button:hover:not(:disabled), 
+      #icf-wrapper .navigation-buttons button:hover:not(:disabled) { background: #1f6391; }
+      #icf-wrapper .icf-navigation button:disabled, 
+      #icf-wrapper .navigation-buttons button:disabled { background: #bdc3c7; cursor: not-allowed; }
+      
+      /* Modal Styles */
+      #icf-wrapper .icf-modal, 
+      #icf-wrapper .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.5); }
+      #icf-wrapper .icf-modal-content, 
+      #icf-wrapper .modal-content { background: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 8px; position: relative; }
+      #icf-wrapper .icf-close-modal, 
+      #icf-wrapper .close-modal { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+      #icf-wrapper .icf-close-modal:hover, 
+      #icf-wrapper .icf-close-modal:focus, 
+      #icf-wrapper .close-modal:hover, 
+      #icf-wrapper .close-modal:focus { color: black; text-decoration: none; }
+      
+      /* Form Styles */
+      #icf-wrapper .icf-form .icf-question, 
+      #icf-wrapper .form-page .question, 
+      #icf-wrapper .quote-form .question { margin-bottom: 20px; }
+      #icf-wrapper .icf-form label, 
+      #icf-wrapper .form-page label, 
+      #icf-wrapper .quote-form label { display: block; margin-bottom: 8px; font-weight: bold; color: #2c3e50; }
+      #icf-wrapper .icf-form input[type="text"], 
+      #icf-wrapper .icf-form input[type="email"], 
+      #icf-wrapper .icf-form input[type="tel"], 
+      #icf-wrapper .icf-form select,
+      #icf-wrapper .form-page input[type="text"],
+      #icf-wrapper .form-page input[type="email"],
+      #icf-wrapper .form-page input[type="tel"],
+      #icf-wrapper .form-page select,
+      #icf-wrapper .quote-form input[type="text"],
+      #icf-wrapper .quote-form input[type="email"],
+      #icf-wrapper .quote-form input[type="tel"],
+      #icf-wrapper .quote-form select { width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 16px; }
+      #icf-wrapper .icf-form input[type="text"]:focus, 
+      #icf-wrapper .icf-form input[type="email"]:focus, 
+      #icf-wrapper .icf-form input[type="tel"]:focus, 
+      #icf-wrapper .icf-form select:focus,
+      #icf-wrapper .form-page input[type="text"]:focus,
+      #icf-wrapper .form-page input[type="email"]:focus,
+      #icf-wrapper .form-page input[type="tel"]:focus,
+      #icf-wrapper .form-page select:focus,
+      #icf-wrapper .quote-form input[type="text"]:focus,
+      #icf-wrapper .quote-form input[type="email"]:focus,
+      #icf-wrapper .quote-form input[type="tel"]:focus,
+      #icf-wrapper .quote-form select:focus { border-color: #2980b9; outline: none; box-shadow: 0 0 5px rgba(41,128,185,0.5); }
+      
+      /* Slider Styles */
+      #icf-wrapper .icf-slider-container, 
+      #icf-wrapper .slider-container { display: flex; align-items: center; }
+      #icf-wrapper .icf-slider-container input[type=range], 
+      #icf-wrapper .slider-container input[type=range] { flex: 1; margin-right: 15px; height: 5px; background: #d3d3d3; border-radius: 5px; appearance: none; }
+      #icf-wrapper .icf-slider-container input[type=range]::-webkit-slider-thumb, 
+      #icf-wrapper .slider-container input[type=range]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; background: #2980b9; cursor: pointer; border-radius: 50%; border: none; transition: background 0.3s; }
+      #icf-wrapper .icf-slider-container input[type=range]::-webkit-slider-thumb:hover, 
+      #icf-wrapper .slider-container input[type=range]::-webkit-slider-thumb:hover { background: #1f6391; }
+      #icf-wrapper .icf-slider-value, 
+      #icf-wrapper .slider-value { width: 60px; text-align: center; font-weight: bold; color: #2c3e50; font-size: 14px; }
+      
+      /* Custom Radio Buttons */
+      #icf-wrapper .icf-options-container, 
+      #icf-wrapper .options-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+      #icf-wrapper .icf-option, 
+      #icf-wrapper .option { position: relative; cursor: pointer; width: 120px; text-align: center; border: 2px solid transparent; border-radius: 8px; transition: border-color 0.3s, box-shadow 0.3s; background: #f9f9f9; padding: 10px; }
+      #icf-wrapper .icf-option.selected, 
+      #icf-wrapper .option.selected { border-color: #2980b9; box-shadow: 0 0 10px rgba(41,128,185,0.5); }
+      #icf-wrapper .icf-option input, 
+      #icf-wrapper .option input { display: none; }
+      #icf-wrapper .icf-option img, 
+      #icf-wrapper .option img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; margin-bottom: 10px; }
+      #icf-wrapper .icf-option span, 
+      #icf-wrapper .option span { display: block; color: #2c3e50; font-weight: bold; font-size: 14px; }
+      
+      /* Get a Quote Button */
+      #icf-wrapper .icf-quote-button, 
+      #icf-wrapper .quote-button { padding: 10px 20px; background: #27ae60; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background 0.3s; }
+      #icf-wrapper .icf-quote-button:hover, 
+      #icf-wrapper .quote-button:hover { background: #1e8449; }
+      
+      /* Responsive Design */
+      @media(max-width:768px){
+        #icf-wrapper .icf-policy, 
+        #icf-wrapper .insurance-policies .policy { width: 100px; height: 100px; }
+        #icf-wrapper .icf-option, 
+        #icf-wrapper .option { width: 100px; }
+        #icf-wrapper .icf-option img, 
+        #icf-wrapper .option img { width: 60px; height: 60px; }
+        #icf-wrapper .icf-slider-value, 
+        #icf-wrapper .slider-value { width: 50px; font-size: 12px; }
+        #icf-wrapper .icf-modal-content, 
+        #icf-wrapper .modal-content { width: 95%; }
+        #icf-wrapper #comparison-table th, 
+        #icf-wrapper #comparison-table td { padding: 8px; font-size: 14px; }
+        #icf-wrapper #ai-summary { font-size: 14px; }
+      }
+    </style>
+    </style>
+    <style>
+      /* Additional styles scoped within #icf-wrapper */
+      #icf-wrapper *{box-sizing:border-box;margin:0;padding:0;}
+      #icf-wrapper body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:#f0f4f7;color:#333;line-height:1.6;padding:20px;}
+      #icf-wrapper .container{width:100%;max-width:1000px;margin:0 auto;background-color:#fff;padding:40px;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);}
+      #icf-wrapper h2,h3{text-align:center;color:#2c3e50;margin-bottom:20px;}
+      #icf-wrapper .progress-container{width:100%;background-color:#e0e0e0;border-radius:12px;margin-bottom:30px;height:30px;position:relative;overflow:hidden;}
+      #icf-wrapper .progress-bar{height:100%;width:0%;background-color:#2980b9;text-align:center;line-height:30px;color:#fff;transition:width 0.4s ease;position:relative;z-index:1;}
+      #icf-wrapper .progress-bar::after{content:attr(data-percentage);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-weight:bold;color:#fff;font-size:14px;}
+      #icf-wrapper .form-page{display:none;}
+      #icf-wrapper .form-page.active{display:block;}
+      #icf-wrapper .navigation-buttons{display:flex;justify-content:space-between;margin-top:30px;}
+      #icf-wrapper .navigation-buttons button{padding:12px 24px;border:none;background-color:#2980b9;color:#fff;border-radius:4px;cursor:pointer;font-size:16px;transition:background-color 0.3s ease;}
+      #icf-wrapper .navigation-buttons button:hover:not(:disabled){background-color:#1f6391;}
+      #icf-wrapper .navigation-buttons button:disabled{background-color:#bdc3c7;cursor:not-allowed;}
+      #icf-wrapper .insurance-policies{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin-top:20px;}
+      #icf-wrapper .insurance-policies .policy{width:120px;height:120px;border:2px solid #bdc3c7;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color 0.3s ease,box-shadow 0.3s ease;background-color:#f9f9f9;}
+      #icf-wrapper .insurance-policies .policy.selected{border-color:#2980b9;box-shadow:0 0 10px rgba(41,128,185,0.5);}
+      #icf-wrapper .insurance-policies .policy img{max-width:80%;max-height:80%;}
+      #icf-wrapper .question{margin-bottom:25px;}
+      #icf-wrapper .question label{display:block;margin-bottom:10px;font-weight:bold;color:#2c3e50;}
+      #icf-wrapper .slider-container{display:flex;align-items:center;}
+      #icf-wrapper .slider-container input[type=range]{flex:1;margin-right:15px;height:5px;background:#d3d3d3;outline:none;border-radius:5px;appearance:none;}
+      #icf-wrapper .slider-container input[type=range]::-webkit-slider-thumb{appearance:none;width:20px;height:20px;background:#2980b9;cursor:pointer;border-radius:50%;border:none;transition:background 0.3s ease;}
+      #icf-wrapper .slider-container input[type=range]::-webkit-slider-thumb:hover{background:#1f6391;}
+      #icf-wrapper .slider-value{width:60px;text-align:center;font-weight:bold;color:#2c3e50;font-size:14px;}
+      #icf-wrapper .options-container{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+      #icf-wrapper .option{position:relative;cursor:pointer;width:120px;text-align:center;border:2px solid transparent;border-radius:8px;transition:border-color 0.3s ease,box-shadow 0.3s ease;background-color:#f9f9f9;padding:10px;}
+      #icf-wrapper .option.selected{border-color:#2980b9;box-shadow:0 0 10px rgba(41,128,185,0.5);}
+      #icf-wrapper .option input{display:none;}
+      #icf-wrapper .option img{width:80px;height:80px;object-fit:cover;border-radius:50%;margin-bottom:10px;}
+      #icf-wrapper .option span{display:block;color:#2c3e50;font-weight:bold;font-size:14px;}
+      #icf-wrapper input[type="text"], 
+      #icf-wrapper input[type="email"], 
+      #icf-wrapper input[type="tel"], 
+      #icf-wrapper select {width:100%;padding:10px;margin-top:5px;border:1px solid #bdc3c7;border-radius:4px;font-size:16px;font-family:inherit;}
+      #icf-wrapper input[type="text"]:focus, 
+      #icf-wrapper input[type="email"]:focus, 
+      #icf-wrapper input[type="tel"]:focus, 
+      #icf-wrapper select:focus {border-color:#2980b9;outline:none;box-shadow:0 0 5px rgba(41,128,185,0.5);}
+      #icf-wrapper #comparison-table{width:100%;border-collapse:collapse;margin-top:20px;}
+      #icf-wrapper #comparison-table th,#icf-wrapper #comparison-table td{border:1px solid #bdc3c7;padding:12px;text-align:left;vertical-align:top;}
+      #icf-wrapper #comparison-table th{background-color:#ecf0f1;color:#2c3e50;width:20%;}
+      #icf-wrapper #comparison-table td{color:#34495e;}
+      #icf-wrapper .policy-button{display:inline-block;padding:6px 12px;margin:4px 2px;font-size:14px;border:none;border-radius:4px;background-color:#2980b9;color:#fff;cursor:default;}
+      #icf-wrapper .star-rating{display:flex;align-items:center;}
+      #icf-wrapper .star-rating .star{color:#f1c40f;font-size:16px;margin-right:2px;}
+      #icf-wrapper .quote-button{padding:8px 16px;background-color:#27ae60;color:#fff;border:none;border-radius:4px;cursor:pointer;transition:background-color 0.3s ease;}
+      #icf-wrapper .quote-button:hover{background-color:#1e8449;}
+      #icf-wrapper .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,0.5);}
+      #icf-wrapper .modal-content{background-color:#fefefe;margin:10% auto;padding:20px;border:1px solid #888;width:90%;max-width:500px;border-radius:8px;position:relative;}
+      #icf-wrapper .close-modal{color:#aaa;float:right;font-size:28px;font-weight:bold;position:absolute;top:10px;right:20px;cursor:pointer;}
+      #icf-wrapper .close-modal:hover, 
+      #icf-wrapper .close-modal:focus {color:black;text-decoration:none;}
+      #icf-wrapper .quote-form .question{margin-bottom:15px;}
+      #icf-wrapper .quote-form label{display:block;margin-bottom:5px;font-weight:bold;color:#2c3e50;}
+      #icf-wrapper .quote-form input[type="text"], 
+      #icf-wrapper .quote-form input[type="email"], 
+      #icf-wrapper .quote-form input[type="tel"], 
+      #icf-wrapper .quote-form select {width:100%;padding:8px;border:1px solid #bdc3c7;border-radius:4px;font-size:14px;font-family:inherit;}
+      #icf-wrapper .quote-form input[type="text"]:focus, 
+      #icf-wrapper .quote-form input[type="email"]:focus, 
+      #icf-wrapper .quote-form input[type="tel"]:focus, 
+      #icf-wrapper .quote-form select:focus {border-color:#2980b9;outline:none;box-shadow:0 0 5px rgba(41,128,185,0.5);}
+      #icf-wrapper .quote-form button{padding:10px 20px;background-color:#2980b9;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:16px;transition:background-color 0.3s ease;}
+      #icf-wrapper .quote-form button:hover{background-color:#1f6391;}
+      @media(max-width:768px){
+        #icf-wrapper .insurance-policies .policy{width:100px;height:100px;}
+        #icf-wrapper .option{width:100px;}
+        #icf-wrapper .option img{width:60px;height:60px;}
+        #icf-wrapper .slider-value{width:50px;font-size:12px;}
+        #icf-wrapper #comparison-table th,#icf-wrapper #comparison-table td{padding:8px;font-size:14px;}
+        #icf-wrapper #ai-summary{font-size:14px;}
+      }
+    </style>
+</head>
+<body>
+    <div id="icf-wrapper">
+        <div class="container">
+            <h2>Insurance Comparison Tool</h2>
+            <div class="progress-container"><div class="progress-bar" id="progress-bar" data-percentage="0%"></div></div>
+            <div class="form-page active" id="page-1">
+                <h3>Step 1: Select Insurance Policies</h3>
+                <p>Please select the insurance policies you are interested in comparing:</p>
+                <div class="insurance-policies">
+                    <div class="policy" data-policy="Life"><img src="https://via.placeholder.com/100x100.png?text=Life" alt="Life Insurance"><span>Life</span></div>
+                    <div class="policy" data-policy="Income"><img src="https://via.placeholder.com/100x100.png?text=Income" alt="Income Protection"><span>Income</span></div>
+                    <div class="policy" data-policy="Health"><img src="https://via.placeholder.com/100x100.png?text=Health" alt="Health Insurance"><span>Health</span></div>
+                    <div class="policy" data-policy="Trauma"><img src="https://via.placeholder.com/100x100.png?text=Trauma" alt="Trauma Insurance"><span>Trauma</span></div>
+                    <div class="policy" data-policy="Mortgage"><img src="https://via.placeholder.com/100x100.png?text=Mortgage" alt="Mortgage Insurance"><span>Mortgage</span></div>
+                </div>
+            </div>
+            <div class="form-page" id="page-2">
+                <h3>Step 2: Provide Your Information</h3>
+                <form id="qualifying-form"><div id="dynamic-questions"></div></form>
+            </div>
+            <div class="form-page" id="page-3">
+                <h3>Step 3: Additional Details</h3>
+                <form id="additional-details-form"><div id="additional-questions"></div></form>
+            </div>
+            <div class="form-page" id="page-4">
+                <h3>Step 4: Review Your Comparison</h3>
+                <div id="comparison-table-container"></div>
+                <div id="ai-summary"></div>
+            </div>
+            <div class="navigation-buttons">
+                <button type="button" id="back-button" disabled>← Back</button>
+                <button type="button" id="next-button">Next →</button>
+            </div>
+        </div>
+        <div id="quote-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h3>Get a Quote</h3>
+                <form id="quote-form" class="quote-form">
+                    <div class="question">
+                        <label for="full_name">Full Name</label>
+                        <input type="text" id="full_name" name="full_name" placeholder="John Doe" required>
+                    </div>
+                    <div class="question">
+                        <label for="phone_number">Phone Number</label>
+                        <input type="tel" id="phone_number" name="phone_number" placeholder="(123) 456-7890" required>
+                    </div>
+                    <div class="question">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="john.doe@example.com" required>
+                    </div>
+                    <div class="question">
+                        <label for="region">Region</label>
+                        <select id="region" name="region" required>
+                            <option value="" disabled selected>Select your region</option>
+                            <option value="North">North</option>
+                            <option value="South">South</option>
+                            <option value="East">East</option>
+                            <option value="West">West</option>
+                        </select>
+                    </div>
+                    <p>To provide you with the most accurate and personalized insurance quote, we recommend scheduling a brief consultation with one of our knowledgeable advisors. This meeting will allow us to gather essential information tailored to your needs, ensuring you receive the best coverage options available.</p>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+        <script>
+        const questionsData = {
+            common: [
+                {id:"age", text:"Please select your age:", type:"slider", min:18, max:70, step:1, required:true},
+                {id:"gender", text:"Please select your gender:", type:"custom_radio", options:["Male","Female","Non-Binary","Prefer not to say"], required:true},
+                {id:"smoked_last_12_months", text:"Have you smoked in the last 12 months?", type:"custom_radio", options:["Yes","No"], required:true},
+                {id:"significant_health_conditions", text:"Do you have any significant health conditions?", type:"custom_radio", options:["Yes","No"], required:true}
+            ],
+            specific: [
+                {id:"life_coverage_amount", text:"Desired Life Coverage Amount ($):", type:"slider", min:10000, max:1000000, step:1000, required:true, applicable_policies:["Life"]},
+                {id:"trauma_cover_amount", text:"Desired Trauma Cover Amount ($):", type:"slider", min:10000, max:500000, step:1000, required:true, applicable_policies:["Trauma"]},
+                {id:"number_dependents", text:"Number of Dependents:", type:"slider", min:0, max:10, step:1, required:false, applicable_policies:["Life"]},
+                {id:"medical_coverage_type", text:"Type of Medical Insurance:", type:"custom_radio", options:["Individual","Family"], required:true, applicable_policies:["Health"]},
+                {id:"dental_cover", text:"Do you want dental coverage?", type:"custom_radio", options:["Yes","No"], required:true, applicable_policies:["Health"]},
+                {id:"income_occupation", text:"Enter your occupation:", type:"text", required:true, applicable_policies:["Income"]},
+                {id:"annual_income", text:"What is your annual income ($):", type:"slider", min:20000, max:200000, step:1000, required:true, applicable_policies:["Income"]},
+                {id:"mortgage_amount", text:"Mortgage Amount ($):", type:"slider", min:50000, max:1000000, step:1000, required:true, applicable_policies:["Mortgage"]},
+                {id:"mortgage_term", text:"Mortgage Term (Years):", type:"slider", min:5, max:30, step:1, required:true, applicable_policies:["Mortgage"]}
+            ]
+        };
+        document.addEventListener("DOMContentLoaded", function(){
+            const pages = document.querySelectorAll('#icf-wrapper .form-page'),
+                  nextButton = document.getElementById('next-button'),
+                  backButton = document.getElementById('back-button'),
+                  progressBar = document.getElementById('progress-bar'),
+                  totalPages = pages.length,
+                  insurancePolicies = document.querySelectorAll('#icf-wrapper .insurance-policies .policy');
+            let currentPage = 0, selectedPolicies = [];
+
+            insurancePolicies.forEach(policy => {
+                policy.addEventListener('click', () => {
+                    policy.classList.toggle('selected');
+                    const policyName = policy.getAttribute('data-policy');
+                    if(selectedPolicies.includes(policyName)){
+                        selectedPolicies = selectedPolicies.filter(item => item !== policyName);
+                    }
+                    else{
+                        selectedPolicies.push(policyName);
+                    }
+                    if(currentPage === 1){
+                        renderQualifyingQuestions();
+                    }
+                    if(currentPage === 2){
+                        renderAdditionalDetails();
+                    }
+                });
+            });
+
+            nextButton.addEventListener('click', () => {
+                if(currentPage === 0){
+                    if(selectedPolicies.length === 0){
+                        alert('Please select at least one insurance policy.');
+                        return;
+                    }
+                }
+                else if(currentPage === 1){
+                    if(!validateQualifyingQuestions()){ return; }
+                }
+                else if(currentPage === 2){
+                    if(!validateAdditionalDetails()){ return; }
+                }
+                else if(currentPage === 3){
+                    openQuoteModal(); return;
+                }
+
+                if(currentPage < totalPages - 1){
+                    pages[currentPage].classList.remove('active');
+                    currentPage++;
+                    pages[currentPage].classList.add('active');
+                    updateProgressBar();
+                    backButton.disabled = false;
+                    if(currentPage === totalPages - 1){
+                        nextButton.textContent = 'Get a Quote';
+                    }
+                    else{
+                        nextButton.textContent = 'Next →';
+                    }
+                    if(currentPage === 1){
+                        renderQualifyingQuestions();
+                    }
+                    if(currentPage === 2){
+                        renderAdditionalDetails();
+                    }
+                    if(currentPage === 3){
+                        generateComparison();
+                    }
+                }
+            });
+
+            backButton.addEventListener('click', () => {
+                if(currentPage > 0){
+                    pages[currentPage].classList.remove('active');
+                    currentPage--;
+                    pages[currentPage].classList.add('active');
+                    updateProgressBar();
+                    nextButton.textContent = (currentPage === totalPages - 1) ? 'Get a Quote' : 'Next →';
+                    if(currentPage === 0){
+                        backButton.disabled = true;
+                    }
+                    if(currentPage === 1){
+                        renderQualifyingQuestions();
+                    }
+                    if(currentPage === 2){
+                        renderAdditionalDetails();
+                    }
+                }
+            });
+
+            function updateProgressBar(){
+                const progressPercentage = ((currentPage) / (totalPages - 1)) * 100;
+                progressBar.style.width = `${progressPercentage}%`;
+                progressBar.setAttribute('data-percentage', `${Math.round(progressPercentage)}%`);
+            }
+
+            function renderQualifyingQuestions(){
+                const container = document.getElementById('dynamic-questions');
+                container.innerHTML = '';
+                if(selectedPolicies.length === 0){
+                    container.innerHTML = '<p>No insurance policies selected.</p>';
+                    return;
+                }
+                const questions = questionsData.common;
+                questions.forEach(q => {
+                    const div = document.createElement('div');
+                    div.classList.add('question');
+                    const label = document.createElement('label');
+                    label.setAttribute('for', q.id);
+                    label.textContent = q.text;
+                    div.appendChild(label);
+                    let input;
+                    switch(q.type){
+                        case 'slider':
+                            const sliderDiv = document.createElement('div');
+                            sliderDiv.classList.add('slider-container');
+                            input = document.createElement('input');
+                            input.type = 'range';
+                            input.id = q.id;
+                            input.name = q.id;
+                            input.min = q.min;
+                            input.max = q.max;
+                            input.step = q.step || 1;
+                            input.value = Math.floor((q.min + q.max) / 2);
+                            input.required = q.required;
+                            const span = document.createElement('span');
+                            span.classList.add('slider-value');
+                            span.id = `${q.id}-value`;
+                            span.textContent = formatNumber(input.value);
+                            input.addEventListener('input', () => { span.textContent = formatNumber(input.value); });
+                            sliderDiv.appendChild(input);
+                            sliderDiv.appendChild(span);
+                            div.appendChild(sliderDiv);
+                            break;
+                        case 'custom_radio':
+                            const optionsDiv = document.createElement('div');
+                            optionsDiv.classList.add('options-container');
+                            q.options.forEach(option => {
+                                const optDiv = document.createElement('div');
+                                optDiv.classList.add('option');
+                                const radio = document.createElement('input');
+                                radio.type = 'radio';
+                                radio.id = `${q.id}_${option}`;
+                                radio.name = q.id;
+                                radio.value = option;
+                                if(q.required) radio.required = true;
+                                const lbl = document.createElement('label');
+                                lbl.setAttribute('for', `${q.id}_${option}`);
+                                const img = document.createElement('img');
+                                img.src = getOptionImage(q.id, option);
+                                img.alt = option;
+                                const spanOpt = document.createElement('span');
+                                spanOpt.textContent = option;
+                                lbl.appendChild(img);
+                                lbl.appendChild(spanOpt);
+                                optDiv.appendChild(radio);
+                                optDiv.appendChild(lbl);
+                                optionsDiv.appendChild(optDiv);
+                                lbl.addEventListener('click', () => {
+                                    optionsDiv.querySelectorAll('.option').forEach(sib => sib.classList.remove('selected'));
+                                    optDiv.classList.add('selected');
+                                });
+                            });
+                            div.appendChild(optionsDiv);
+                            break;
+                        case 'text':
+                            input = document.createElement('input');
+                            input.type = 'text';
+                            input.id = q.id;
+                            input.name = q.id;
+                            input.placeholder = 'e.g., Software Engineer';
+                            if(q.required) input.required = true;
+                            div.appendChild(input);
+                            break;
+                        case 'select':
+                            input = document.createElement('select');
+                            input.id = q.id;
+                            input.name = q.id;
+                            if(q.required) input.required = true;
+                            const defaultOpt = document.createElement('option');
+                            defaultOpt.value = '';
+                            defaultOpt.disabled = true;
+                            defaultOpt.selected = true;
+                            defaultOpt.textContent = 'Select an option';
+                            input.appendChild(defaultOpt);
+                            q.options.forEach(optVal => {
+                                const opt = document.createElement('option');
+                                opt.value = optVal;
+                                opt.textContent = optVal;
+                                input.appendChild(opt);
+                            });
+                            div.appendChild(input);
+                            break;
+                        default:
+                            input = document.createElement('input');
+                            input.type = 'text';
+                            input.id = q.id;
+                            input.name = q.id;
+                            input.placeholder = 'Enter your response';
+                            if(q.required) input.required = true;
+                            div.appendChild(input);
+                    }
+                    container.appendChild(div);
+                });
+            }
+
+            function renderAdditionalDetails(){
+                const container = document.getElementById('additional-questions');
+                container.innerHTML = '';
+                if(selectedPolicies.length === 0){
+                    container.innerHTML = '<p>No insurance policies selected.</p>';
+                    return;
+                }
+                let relevantQs = [];
+                selectedPolicies.forEach(policy => {
+                    const specificQs = questionsData.specific.filter(q => q.applicable_policies.includes(policy));
+                    relevantQs = relevantQs.concat(specificQs);
+                });
+                const uniqueQs = [];
+                const qIds = new Set();
+                relevantQs.forEach(q => {
+                    if(!qIds.has(q.id)){
+                        uniqueQs.push(q);
+                        qIds.add(q.id);
+                    }
+                });
+                uniqueQs.forEach(q => {
+                    const div = document.createElement('div');
+                    div.classList.add('question');
+                    const label = document.createElement('label');
+                    label.setAttribute('for', q.id);
+                    label.textContent = q.text;
+                    div.appendChild(label);
+                    let input;
+                    switch(q.type){
+                        case 'slider':
+                            const sliderDiv = document.createElement('div');
+                            sliderDiv.classList.add('slider-container');
+                            input = document.createElement('input');
+                            input.type = 'range';
+                            input.id = q.id;
+                            input.name = q.id;
+                            input.min = q.min;
+                            input.max = q.max;
+                            input.step = q.step || 1;
+                            input.value = q.min;
+                            input.required = q.required;
+                            const span = document.createElement('span');
+                            span.classList.add('slider-value');
+                            span.id = `${q.id}-value`;
+                            span.textContent = formatNumber(input.value);
+                            input.addEventListener('input', () => { span.textContent = formatNumber(input.value); });
+                            sliderDiv.appendChild(input);
+                            sliderDiv.appendChild(span);
+                            div.appendChild(sliderDiv);
+                            break;
+                        case 'custom_radio':
+                            const optionsDiv = document.createElement('div');
+                            optionsDiv.classList.add('options-container');
+                            q.options.forEach(option => {
+                                const optDiv = document.createElement('div');
+                                optDiv.classList.add('option');
+                                const radio = document.createElement('input');
+                                radio.type = 'radio';
+                                radio.id = `${q.id}_${option}`;
+                                radio.name = q.id;
+                                radio.value = option;
+                                if(q.required) radio.required = true;
+                                const lbl = document.createElement('label');
+                                lbl.setAttribute('for', `${q.id}_${option}`);
+                                const img = document.createElement('img');
+                                img.src = getOptionImage(q.id, option);
+                                img.alt = option;
+                                const spanOpt = document.createElement('span');
+                                spanOpt.textContent = option;
+                                lbl.appendChild(img);
+                                lbl.appendChild(spanOpt);
+                                optDiv.appendChild(radio);
+                                optDiv.appendChild(lbl);
+                                optionsDiv.appendChild(optDiv);
+                                lbl.addEventListener('click', () => {
+                                    optionsDiv.querySelectorAll('.option').forEach(sib => sib.classList.remove('selected'));
+                                    optDiv.classList.add('selected');
+                                });
+                            });
+                            div.appendChild(optionsDiv);
+                            break;
+                        case 'text':
+                            input = document.createElement('input');
+                            input.type = 'text';
+                            input.id = q.id;
+                            input.name = q.id;
+                            input.placeholder = 'e.g., Software Engineer';
+                            if(q.required) input.required = true;
+                            div.appendChild(input);
+                            break;
+                        case 'select':
+                            input = document.createElement('select');
+                            input.id = q.id;
+                            input.name = q.id;
+                            if(q.required) input.required = true;
+                            const defaultOpt = document.createElement('option');
+                            defaultOpt.value = '';
+                            defaultOpt.disabled = true;
+                            defaultOpt.selected = true;
+                            defaultOpt.textContent = 'Select an option';
+                            input.appendChild(defaultOpt);
+                            q.options.forEach(optVal => {
+                                const opt = document.createElement('option');
+                                opt.value = optVal;
+                                opt.textContent = optVal;
+                                input.appendChild(opt);
+                            });
+                            div.appendChild(input);
+                            break;
+                        default:
+                            input = document.createElement('input');
+                            input.type = 'text';
+                            input.id = q.id;
+                            input.name = q.id;
+                            input.placeholder = 'Enter your response';
+                            if(q.required) input.required = true;
+                            div.appendChild(input);
+                    }
+                    container.appendChild(div);
+                });
+            }
+
+            function validateQualifyingQuestions(){
+                const container = document.getElementById('dynamic-questions');
+                let valid = true;
+                container.querySelectorAll('input[type=range]').forEach(input => {
+                    if(input.required && !input.value){
+                        valid = false;
+                        input.style.outline = '2px solid #e74c3c';
+                    }
+                    else{
+                        input.style.outline = 'none';
+                    }
+                });
+                container.querySelectorAll('.options-container').forEach(containerOpt => {
+                    const selected = containerOpt.querySelector('input[type=radio]:checked');
+                    if(!selected){
+                        valid = false;
+                        containerOpt.style.border = '2px solid #e74c3c';
+                    }
+                    else{
+                        containerOpt.style.border = 'none';
+                    }
+                });
+                if(!valid){
+                    alert('Please answer all required questions.');
+                }
+                return valid;
+            }
+
+            function validateAdditionalDetails(){
+                const container = document.getElementById('additional-questions');
+                const inputs = container.querySelectorAll('input, select');
+                let valid = true;
+                inputs.forEach(input => {
+                    if(input.required && !input.value){
+                        valid = false;
+                        input.style.outline = '2px solid #e74c3c';
+                    }
+                    else{
+                        input.style.outline = 'none';
+                    }
+                });
+                if(!valid){
+                    alert('Please answer all required additional details.');
+                }
+                return valid;
+            }
+
+            function generateComparison(){
+                const qForm = document.getElementById('qualifying-form');
+                const qData = {};
+                qForm.querySelectorAll('input, select').forEach(input => {
+                    if(input.type === 'range'){
+                        qData[input.name] = input.value;
+                    }
+                    else if(input.type === 'radio'){
+                        if(input.checked){
+                            qData[input.name] = input.value;
+                        }
+                    }
+                    else{
+                        qData[input.name] = input.value;
+                    }
+                });
+                const aForm = document.getElementById('additional-details-form');
+                const aData = {};
+                aForm.querySelectorAll('input, select').forEach(input => {
+                    if(input.type === 'range'){
+                        aData[input.name] = input.value;
+                    }
+                    else if(input.type === 'radio'){
+                        if(input.checked){
+                            qData[input.name] = input.value;
+                        }
+                    }
+                    else{
+                        aData[input.name] = input.value;
+                    }
+                });
+                const allData = {...qData, ...aData};
+                const providers = getRelevantProviders();
+                const tableContainer = document.getElementById('comparison-table-container');
+                tableContainer.innerHTML = '';
+                if(providers.length === 0){
+                    tableContainer.innerHTML = '<p>No insurance policies selected.</p>';
+                }
+                else{
+                    const table = document.createElement('table');
+                    table.id = 'comparison-table';
+                    const thead = document.createElement('thead');
+                    const headerRow = document.createElement('tr');
+                    ['NZ Insurers for Personal Insurance','Policies Offered','Reviews','Special Offers','Financial Stability','Get a Quote'].forEach(text => {
+                        const th = document.createElement('th');
+                        th.textContent = text;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+                    const tbody = document.createElement('tbody');
+                    providers.forEach(provider => {
+                        const row = document.createElement('tr');
+                        const nameCell = document.createElement('td');
+                        const logoImg = document.createElement('img');
+                        logoImg.src = getProviderLogo(provider);
+                        logoImg.alt = `${provider} Logo`;
+                        logoImg.style.width = '50px';
+                        logoImg.style.height = '50px';
+                        logoImg.style.verticalAlign = 'middle';
+                        logoImg.style.marginRight = '10px';
+                        nameCell.appendChild(logoImg);
+                        const insurerName = document.createElement('span');
+                        insurerName.textContent = `${provider} Insurance`;
+                        nameCell.appendChild(insurerName);
+                        row.appendChild(nameCell);
+
+                        const policiesCell = document.createElement('td');
+                        const policies = getPoliciesOfferedByProvider(provider);
+                        policies.forEach(policy => {
+                            const policyBtn = document.createElement('span');
+                            policyBtn.classList.add('policy-button');
+                            policyBtn.textContent = policy;
+                            policiesCell.appendChild(policyBtn);
+                        });
+                        row.appendChild(policiesCell);
+
+                        const reviewsCell = document.createElement('td');
+                        const reviews = getReviews(provider);
+                        const starDiv = document.createElement('div');
+                        starDiv.classList.add('star-rating');
+                        for(let i = 1; i <= 5; i++){
+                            const star = document.createElement('span');
+                            star.classList.add('star');
+                            star.textContent = (i <= reviews) ? '★' : '☆';
+                            starDiv.appendChild(star);
+                        }
+                        reviewsCell.appendChild(starDiv);
+                        row.appendChild(reviewsCell);
+
+                        const offersCell = document.createElement('td');
+                        const offers = getSpecialOffers(provider);
+                        offersCell.textContent = offers || 'N/A';
+                        row.appendChild(offersCell);
+
+                        const stabilityCell = document.createElement('td');
+                        const stability = getFinancialStability(provider);
+                        stabilityCell.textContent = stability || 'N/A';
+                        row.appendChild(stabilityCell);
+
+                        const quoteCell = document.createElement('td');
+                        const quoteBtn = document.createElement('button');
+                        quoteBtn.classList.add('quote-button');
+                        quoteBtn.textContent = 'Get a Quote';
+                        quoteBtn.addEventListener('click', () => { openQuoteModal(); });
+                        quoteCell.appendChild(quoteBtn);
+                        row.appendChild(quoteCell);
+
+                        tbody.appendChild(row);
+                    });
+                    table.appendChild(tbody);
+                    tableContainer.appendChild(table);
+                }
+                document.getElementById('ai-summary').textContent = '';
+            }
+
+            function getRelevantProviders(){
+                const allProviders = ["AIA","Fidelity","Zurich","Suncorp","Allianz"];
+                return allProviders.filter(provider => {
+                    const offeredPolicies = getPoliciesOfferedByProvider(provider);
+                    return selectedPolicies.some(policy => offeredPolicies.includes(policy));
+                });
+            }
+
+            function getPoliciesOfferedByProvider(provider){
+                const policies = {
+                    "AIA":["Life"],
+                    "Fidelity":["Trauma"],
+                    "Zurich":["Health"],
+                    "Suncorp":["Income","Mortgage"],
+                    "Allianz":["Mortgage"]
+                };
+                return policies[provider] || [];
+            }
+
+            function getReviews(provider){
+                const reviews = {
+                    "AIA":5,
+                    "Fidelity":4,
+                    "Zurich":4,
+                    "Suncorp":5,
+                    "Allianz":4
+                };
+                return reviews[provider] || 0;
+            }
+
+            function getSpecialOffers(provider){
+                const offers = {
+                    "AIA":"10% discount on annual premiums",
+                    "Fidelity":"Free health check-up",
+                    "Zurich":"",
+                    "Suncorp":"Extended coverage period",
+                    "Allianz":"No claim bonus"
+                };
+                return offers[provider];
+            }
+
+            function getFinancialStability(provider){
+                const stability = {
+                    "AIA":"A+",
+                    "Fidelity":"A",
+                    "Zurich":"A+",
+                    "Suncorp":"A+",
+                    "Allianz":"A"
+                };
+                return stability[provider] || 'N/A';
+            }
+
+            function formatNumber(number){
+                return Number(number).toLocaleString();
+            }
+
+            function getOptionImage(qId, option){
+                const images = {
+                    "gender_Male":"https://via.placeholder.com/80.png?text=Male",
+                    "gender_Female":"https://via.placeholder.com/80.png?text=Female",
+                    "gender_Non-Binary":"https://via.placeholder.com/80.png?text=Non-Binary",
+                    "gender_Prefer not to say":"https://via.placeholder.com/80.png?text=Prefer+Not+to+Say",
+                    "smoked_last_12_months_Yes":"https://via.placeholder.com/80.png?text=Yes",
+                    "smoked_last_12_months_No":"https://via.placeholder.com/80.png?text=No",
+                    "significant_health_conditions_Yes":"https://via.placeholder.com/80.png?text=Yes",
+                    "significant_health_conditions_No":"https://via.placeholder.com/80.png?text=No",
+                    "medical_coverage_type_Individual":"https://via.placeholder.com/80.png?text=Individual",
+                    "medical_coverage_type_Family":"https://via.placeholder.com/80.png?text=Family",
+                    "dental_cover_Yes":"https://via.placeholder.com/80.png?text=Yes",
+                    "dental_cover_No":"https://via.placeholder.com/80.png?text=No"
+                };
+                return images[`${qId}_${option}`] || "https://via.placeholder.com/80.png?text=Option";
+            }
+
+            function getProviderLogo(provider){
+                const logos = {
+                    "AIA":"https://via.placeholder.com/100x100.png?text=AIA+Logo",
+                    "Fidelity":"https://via.placeholder.com/100x100.png?text=Fidelity+Logo",
+                    "Zurich":"https://via.placeholder.com/100x100.png?text=Zurich+Logo",
+                    "Suncorp":"https://via.placeholder.com/100x100.png?text=Suncorp+Logo",
+                    "Allianz":"https://via.placeholder.com/100x100.png?text=Allianz+Logo"
+                };
+                return logos[provider] || "https://via.placeholder.com/100x100.png?text=Provider+Logo";
+            }
+
+            function openQuoteModal(){
+                const modal = document.getElementById('quote-modal');
+                modal.style.display = 'block';
+            }
+
+            function closeQuoteModal(){
+                const modal = document.getElementById('quote-modal');
+                modal.style.display = 'none';
+            }
+
+            document.querySelector('#icf-wrapper .close-modal').addEventListener('click', closeQuoteModal);
+            window.addEventListener('click', function(event){
+                const modal = document.getElementById('quote-modal');
+                if(event.target === modal){
+                    closeQuoteModal();
+                }
+            });
+
+            document.getElementById('quote-form').addEventListener('submit', async function(event){
+                event.preventDefault();
+                try{
+                    if(selectedPolicies.length === 0){
+                        alert('Please select at least one insurance policy.');
+                        return;
+                    }
+                    const qForm = document.getElementById('qualifying-form');
+                    const qData = {};
+                    qForm.querySelectorAll('input, select').forEach(input => {
+                        if(input.type === 'range'){
+                            qData[input.name] = parseInt(input.value, 10);
+                        }
+                        else if(input.type === 'radio'){
+                            if(input.checked){
+                                if(['smoked_last_12_months','significant_health_conditions'].includes(input.name)){
+                                    qData[input.name] = input.value === 'Yes';
+                                }
+                                else{
+                                    qData[input.name] = input.value;
+                                }
+                            }
+                        }
+                        else{
+                            qData[input.name] = input.value;
+                        }
+                    });
+                    const aForm = document.getElementById('additional-details-form');
+                    const aData = {};
+                    aForm.querySelectorAll('input, select').forEach(input => {
+                        if(input.type === 'range'){
+                            aData[input.name] = parseInt(input.value, 10);
+                        }
+                        else if(input.type === 'radio'){
+                            if(input.checked){
+                                if(['dental_cover'].includes(input.name)){
+                                    aData[input.name] = input.value === 'Yes';
+                                }
+                                else{
+                                    aData[input.name] = input.value;
+                                }
+                            }
+                        }
+                        else{
+                            aData[input.name] = input.value;
+                        }
+                    });
+                    const quoteData = {
+                        full_name: document.getElementById('full_name').value.trim(),
+                        phone_number: document.getElementById('phone_number').value.trim(),
+                        email: document.getElementById('email').value.trim(),
+                        region: document.getElementById('region').value
+                    };
+                    if(!quoteData.full_name || !quoteData.phone_number || !quoteData.email || !quoteData.region){
+                        alert('Please fill in all required fields in the quote form.');
+                        return;
+                    }
+                    const dataToInsert = {
+                        full_name: quoteData.full_name,
+                        phone_number: quoteData.phone_number,
+                        email: quoteData.email,
+                        region: quoteData.region,
+                        selected_policies: selectedPolicies,
+                        age: qData.age || null,
+                        gender: qData.gender || null,
+                        smoked_last_12_months: qData.smoked_last_12_months,
+                        significant_health_conditions: qData.significant_health_conditions,
+                        life_coverage_amount: aData.life_coverage_amount || null,
+                        trauma_cover_amount: aData.trauma_cover_amount || null,
+                        number_dependents: aData.number_dependents || null,
+                        medical_coverage_type: aData.medical_coverage_type || null,
+                        dental_cover: aData.dental_cover || null,
+                        income_occupation: aData.income_occupation || null,
+                        annual_income: aData.annual_income || null,
+                        mortgage_amount: aData.mortgage_amount || null,
+                        mortgage_term: aData.mortgage_term || null
+                    };
+                    if(window.supabase){
+                        const {data, error} = await window.supabase.from('insuranceleads').insert([dataToInsert]);
+                        if(error){
+                            console.error('Error inserting data:', error);
+                            if(error.code === '23505'){
+                                alert('The email address provided is already in use. Please use a different email.');
+                            }
+                            else{
+                                alert('There was an error submitting your information. Please try again later.');
+                            }
+                        }
+                        else{
+                            alert('Thank you! Our advisor will contact you shortly.');
+                            closeQuoteModal();
+                            resetForm();
+                        }
+                    }
+                    else{
+                        console.error('Supabase client is not initialized.');
+                        alert('Unable to submit data at this time. Please try again later.');
+                    }
+                }
+                catch(err){
+                    console.error('Unexpected error:', err);
+                    alert('An unexpected error occurred. Please try again later.');
+                }
+            });
+
+            function resetForm(){
+                document.getElementById('qualifying-form').reset();
+                document.getElementById('additional-details-form').reset();
+                document.getElementById('quote-form').reset();
+                document.getElementById('dynamic-questions').innerHTML = '';
+                document.getElementById('additional-questions').innerHTML = '';
+                document.getElementById('comparison-table-container').innerHTML = '';
+                document.getElementById('ai-summary').innerHTML = '';
+                insurancePolicies.forEach(policy => { policy.classList.remove('selected'); });
+                selectedPolicies = [];
+                pages.forEach(page => page.classList.remove('active'));
+                pages[0].classList.add('active');
+                currentPage = 0;
+                updateProgressBar();
+                backButton.disabled = true;
+                nextButton.textContent = 'Next →';
+            }
+
+            updateProgressBar();
+        });
+        </script>
+    </div>
+</body>
+</html>
