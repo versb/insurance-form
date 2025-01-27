@@ -228,8 +228,8 @@
       .option img {
         width: 80px;
         height: 80px;
-        object-fit: cover;
-        border-radius: 50%;
+        object-fit: contain; /* Changed from 'cover' to 'contain' to prevent image cropping */
+        border-radius: 8px; /* Changed from 50% to 8px for rounded corners instead of circular */
         margin-bottom: 10px;
         transition: transform 0.3s ease;
       }
@@ -1627,7 +1627,7 @@
           "gender_Male": "https://i.imgur.com/swaPosV.png?text=Male",
           "gender_Female": "https://i.imgur.com/fiAHvJv.png?text=Female",
           "gender_Non-Binary": "https://i.imgur.com/4cGTyP2.png?text=Non-Binary",
-          "gender_Prefer not to say": "https://i.imgur.com/EV16Om2.png?text=Prefer+Not+to+Say",
+          "gender_Prefer not to say": "https://i.imgur.com/EV16Om2.png?text=Prefer+Notto+Say",
           "smoked_last_12_months_Yes": "https://i.imgur.com/9qij3mv.png",
           "smoked_last_12_months_No": "https://i.imgur.com/CPmxUwk.png?text=No",
           "significant_health_conditions_Yes": "https://via.placeholder.com/80.png?text=Yes",
@@ -1865,6 +1865,11 @@
       updateProgressBar();
     });
   </script>
+
+
+</body>
+</html>
+
 
 
 </body>
